@@ -1,0 +1,376 @@
+// =============================================================================
+// Prisma Schema — Système de Gestion du Transport Universitaire
+// USTHB — Faculté d'Informatique — BDD 2ème Année Ingéniorat 2025-2026
+// Dr. LAHRECHE Abdelmadjid — Section B
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// =============================================================================
+// ÉTUDIANT
+// Un étudiant peut être abonné à une seule ligne à la fois.
+// Un étudiant peut changer de ligne (historique à conserver).
+// =============================================================================
+model Etudiant {
+  id               Int      @id @default(autoincrement())
+  matricule        String   @unique @db.VarChar(20)
+  nom              String   @db.VarChar(100)
+  prenom           String   @db.VarChar(100)
+  email            String   @unique @db.VarChar(150)
+  telephone        String?  @db.VarChar(20)
+  dateNaissance    DateTime @db.Date
+  adresse          String?  @db.Text
+  faculte          String   @db.VarChar(100)
+  departement      String?  @db.VarChar(100)
+  anneeEtude       Int      // 1, 2, 3, 4, 5 ...
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  abonnementActif  Abonnement?              // une seule ligne active à la fois
+  historiqueAbonnements HistoriqueAbonnement[] // historique complet des changements
+  incidents        Incident[]               // incidents signalés par l'étudiant
+
+  @@map("etudiant")
+}
+
+// =============================================================================
+// BUS
+// Un bus possède une capacité maximale.
+// Un bus est affecté à une ligne pour une période donnée (historisé).
+// =============================================================================
+model Bus {
+  id               Int      @id @default(autoincrement())
+  immatriculation  String   @unique @db.VarChar(20)
+  marque           String   @db.VarChar(50)
+  modele           String?  @db.VarChar(50)
+  capaciteMax      Int      // nombre de places assises
+  anneeAcquisition Int?
+  etat             EtatBus  @default(OPERATIONNEL)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  affectations     AffectationBus[]   // historique des affectations aux lignes
+  trajets          Trajet[]           // tous les passages de ce bus
+  incidents        Incident[]         // incidents liés à ce bus
+
+  @@map("bus")
+}
+
+enum EtatBus {
+  OPERATIONNEL
+  EN_MAINTENANCE
+  HORS_SERVICE
+}
+
+// =============================================================================
+// LIGNE
+// Une ligne dessert plusieurs stations.
+// Une ligne possède plusieurs horaires selon les jours.
+// =============================================================================
+model Ligne {
+  id               Int      @id @default(autoincrement())
+  code             String   @unique @db.VarChar(10)   // ex: "L01", "L12"
+  nom              String   @db.VarChar(150)
+  description      String?  @db.Text
+  pointDepart      String   @db.VarChar(150)          // ex: "Cité Universitaire Bab Ezzouar"
+  pointArrivee     String   @db.VarChar(150)          // ex: "USTHB Entrée Principale"
+  distanceKm       Decimal? @db.Decimal(6, 2)
+  dureeEstimeeMin  Int?                               // durée estimée en minutes
+  statut           StatutLigne @default(ACTIVE)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  ligneStations    LigneStation[]        // stations desservies (Many-to-Many avec ordre)
+  horaires         Horaire[]             // horaires par jour
+  affectationsBus  AffectationBus[]      // bus affectés à cette ligne
+  abonnements      Abonnement[]          // abonnements actifs sur cette ligne
+  historiqueAbonnements HistoriqueAbonnement[]
+  trajets          Trajet[]              // trajets effectués sur cette ligne
+
+  @@map("ligne")
+}
+
+enum StatutLigne {
+  ACTIVE
+  SUSPENDUE
+  SUPPRIMEE
+}
+
+// =============================================================================
+// STATION
+// Une station peut appartenir à plusieurs lignes (Many-to-Many).
+// =============================================================================
+model Station {
+  id               Int      @id @default(autoincrement())
+  nom              String   @db.VarChar(150)
+  adresse          String?  @db.Text
+  latitude         Decimal? @db.Decimal(10, 7)
+  longitude        Decimal? @db.Decimal(10, 7)
+  description      String?  @db.Text
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  ligneStations    LigneStation[]         // lignes qui desservent cette station
+  arretsTrajet     ArretTrajet[]          // passages de trajets à cette station
+
+  @@map("station")
+}
+
+// =============================================================================
+// LIGNE_STATION — Table de jointure Many-to-Many avec ordre et distance
+// Représente les stations d'une ligne dans l'ordre de passage.
+// =============================================================================
+model LigneStation {
+  id               Int      @id @default(autoincrement())
+  ligneId          Int
+  stationId        Int
+  ordreArret       Int      // ordre de la station dans la ligne (1, 2, 3 ...)
+  distanceDepuisDepart Decimal? @db.Decimal(6, 2)  // km depuis le point de départ
+  dureeDepuisDepart   Int?                          // minutes depuis le point de départ
+  createdAt        DateTime @default(now())
+
+  // Relations
+  ligne            Ligne    @relation(fields: [ligneId], references: [id], onDelete: Cascade)
+  station          Station  @relation(fields: [stationId], references: [id], onDelete: Cascade)
+
+  @@unique([ligneId, stationId])
+  @@unique([ligneId, ordreArret])
+  @@map("ligne_station")
+}
+
+// =============================================================================
+// HORAIRE
+// Une ligne possède plusieurs horaires selon les jours.
+// Chaque horaire définit un créneau de départ pour un jour donné.
+// =============================================================================
+model Horaire {
+  id               Int      @id @default(autoincrement())
+  ligneId          Int
+  jourSemaine      JourSemaine
+  heureDepart      DateTime @db.Time(0)   // heure de départ depuis la station initiale
+  heureArrivee     DateTime @db.Time(0)   // heure d'arrivée estimée à la station finale
+  sens             SensTrajet @default(ALLER)
+  actif            Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  ligne            Ligne    @relation(fields: [ligneId], references: [id], onDelete: Cascade)
+  trajets          Trajet[] // trajets planifiés sur cet horaire
+
+  @@map("horaire")
+}
+
+enum JourSemaine {
+  SAMEDI
+  DIMANCHE
+  LUNDI
+  MARDI
+  MERCREDI
+  JEUDI
+  // (Vendredi = jour de repos en Algérie)
+}
+
+enum SensTrajet {
+  ALLER
+  RETOUR
+}
+
+// =============================================================================
+// AFFECTATION_BUS — Historique des affectations d'un bus à une ligne
+// Un bus est affecté à une ligne pour une période donnée.
+// Les affectations des bus doivent être historisées.
+// =============================================================================
+model AffectationBus {
+  id               Int       @id @default(autoincrement())
+  busId            Int
+  ligneId          Int
+  dateDebut        DateTime  @db.Date
+  dateFin          DateTime? @db.Date   // NULL = affectation en cours
+  motifFin         String?   @db.VarChar(255)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // Relations
+  bus              Bus       @relation(fields: [busId], references: [id], onDelete: Cascade)
+  ligne            Ligne     @relation(fields: [ligneId], references: [id], onDelete: Cascade)
+
+  @@map("affectation_bus")
+}
+
+// =============================================================================
+// ABONNEMENT — Abonnement actif d'un étudiant à une ligne
+// Un étudiant peut être abonné à une seule ligne à la fois.
+// Contrainte : un étudiant ne peut avoir qu'un seul abonnement actif.
+// =============================================================================
+model Abonnement {
+  id               Int       @id @default(autoincrement())
+  etudiantId       Int       @unique   // UNIQUE => une seule ligne active à la fois
+  ligneId          Int
+  dateDebut        DateTime  @db.Date
+  dateFin          DateTime? @db.Date  // NULL = abonnement actif
+  statut           StatutAbonnement @default(ACTIF)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // Relations
+  etudiant         Etudiant  @relation(fields: [etudiantId], references: [id], onDelete: Cascade)
+  ligne            Ligne     @relation(fields: [ligneId], references: [id], onDelete: Cascade)
+
+  @@map("abonnement")
+}
+
+enum StatutAbonnement {
+  ACTIF
+  SUSPENDU
+  EXPIRE
+}
+
+// =============================================================================
+// HISTORIQUE_ABONNEMENT — Historique des changements de ligne d'un étudiant
+// Un étudiant peut changer de ligne (historique à conserver).
+// =============================================================================
+model HistoriqueAbonnement {
+  id               Int       @id @default(autoincrement())
+  etudiantId       Int
+  ligneId          Int
+  dateDebut        DateTime  @db.Date
+  dateFin          DateTime  @db.Date
+  motifChangement  String?   @db.VarChar(255)  // ex: "Déménagement", "Changement de filière"
+  createdAt        DateTime  @default(now())
+
+  // Relations
+  etudiant         Etudiant  @relation(fields: [etudiantId], references: [id], onDelete: Cascade)
+  ligne            Ligne     @relation(fields: [ligneId], references: [id], onDelete: Cascade)
+
+  @@map("historique_abonnement")
+}
+
+// =============================================================================
+// TRAJET — Un passage d'un bus sur une ligne à un horaire donné
+// Un trajet correspond à un passage d'un bus sur une ligne à un horaire donné.
+// Permet de suivre les retards et l'état de chaque trajet.
+// =============================================================================
+model Trajet {
+  id               Int          @id @default(autoincrement())
+  busId            Int
+  ligneId          Int
+  horaireId        Int
+  dateTrajet       DateTime     @db.Date          // date du jour du trajet
+  heureDepartReelle DateTime?   @db.Time(0)       // départ réel (NULL = pas encore parti)
+  heureArriveeReelle DateTime?  @db.Time(0)       // arrivée réelle
+  retardMinutes    Int          @default(0)       // retard en minutes (calculé ou saisi)
+  statut           StatutTrajet @default(PLANIFIE)
+  nbPassagers      Int?                           // nombre de passagers montés
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  // Relations
+  bus              Bus          @relation(fields: [busId], references: [id], onDelete: Restrict)
+  ligne            Ligne        @relation(fields: [ligneId], references: [id], onDelete: Restrict)
+  horaire          Horaire      @relation(fields: [horaireId], references: [id], onDelete: Restrict)
+  arretsTrajet     ArretTrajet[]  // arrêts intermédiaires avec heures réelles
+  incidents        Incident[]     // incidents survenus pendant ce trajet
+
+  @@map("trajet")
+}
+
+enum StatutTrajet {
+  PLANIFIE
+  EN_COURS
+  TERMINE
+  ANNULE
+}
+
+// =============================================================================
+// ARRET_TRAJET — Heures réelles de passage à chaque station pour un trajet
+// Permet le suivi fin des retards station par station.
+// =============================================================================
+model ArretTrajet {
+  id               Int       @id @default(autoincrement())
+  trajetId         Int
+  stationId        Int
+  ordreArret       Int
+  heurePrevue      DateTime  @db.Time(0)
+  heureReelle      DateTime? @db.Time(0)   // NULL = pas encore atteinte
+  retardMinutes    Int       @default(0)
+  createdAt        DateTime  @default(now())
+
+  // Relations
+  trajet           Trajet    @relation(fields: [trajetId], references: [id], onDelete: Cascade)
+  station          Station   @relation(fields: [stationId], references: [id], onDelete: Restrict)
+
+  @@unique([trajetId, stationId])
+  @@map("arret_trajet")
+}
+
+// =============================================================================
+// INCIDENT — Incidents et retards signalés
+// Gérer les incidents et retards.
+// =============================================================================
+model Incident {
+  id               Int             @id @default(autoincrement())
+  trajetId         Int?            // NULL si incident hors trajet
+  busId            Int?
+  etudiantId       Int?            // étudiant qui a signalé (optionnel)
+  type             TypeIncident
+  description      String          @db.Text
+  dateSurvenance   DateTime
+  dateResolution   DateTime?
+  statut           StatutIncident  @default(OUVERT)
+  retardImpute     Int             @default(0)  // minutes de retard causées
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  // Relations
+  trajet           Trajet?         @relation(fields: [trajetId], references: [id], onDelete: SetNull)
+  bus              Bus?            @relation(fields: [busId], references: [id], onDelete: SetNull)
+  etudiant         Etudiant?       @relation(fields: [etudiantId], references: [id], onDelete: SetNull)
+
+  @@map("incident")
+}
+
+enum TypeIncident {
+  PANNE_MECANIQUE
+  ACCIDENT
+  RETARD_TRAFIC
+  SURCHARGE
+  ABSENCE_CHAUFFEUR
+  CONDITIONS_METEO
+  AUTRE
+}
+
+enum StatutIncident {
+  OUVERT
+  EN_COURS_RESOLUTION
+  RESOLU
+  FERME
+}
+
+// =============================================================================
+// CHAUFFEUR — Optionnel mais utile pour la gestion complète
+// =============================================================================
+model Chauffeur {
+  id               Int       @id @default(autoincrement())
+  matricule        String    @unique @db.VarChar(20)
+  nom              String    @db.VarChar(100)
+  prenom           String    @db.VarChar(100)
+  telephone        String?   @db.VarChar(20)
+  numeroPermis     String    @unique @db.VarChar(30)
+  dateExpPermis    DateTime  @db.Date
+  disponible       Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@map("chauffeur")
+}
