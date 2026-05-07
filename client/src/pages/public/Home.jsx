@@ -84,9 +84,7 @@ export default function PublicHome() {
         </div>
       </section>
 
-      <footer className="border-t border-slate-100 py-8 text-center text-slate-400 text-xs">
-        USTHB · Computer Science Department · BDD 2nd Year 2025–2026
-      </footer>
+
     </div>
   );
 }
