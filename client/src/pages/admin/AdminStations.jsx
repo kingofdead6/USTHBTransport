@@ -40,12 +40,12 @@ export default function AdminStations() {
       else                 await api.put(`/stations/${body.id}`, payload);
       setForm(null);
       fetchStations();
-    } catch (e) { alert(e?.response?.data?.message || "Erreur"); }
+    } catch (e) { alert(e?.response?.data?.message || "Error"); }
     finally { setSaving(false); }
   };
 
   const del = async (id) => {
-    if (!confirm("Supprimer cette station ?")) return;
+    if (!confirm("Delete this station?")) return;
     await api.delete(`/stations/${id}`);
     fetchStations();
   };
@@ -62,10 +62,10 @@ export default function AdminStations() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-black">📍 Stations</h1>
-            <p className="text-white/35 text-sm mt-1">{stations.length} arrêts dans le réseau</p>
+            <p className="text-white/35 text-sm mt-1">{stations.length} stops in the network</p>
           </div>
           <button onClick={openAdd} className="px-5 py-2.5 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-sky-900/30">
-            + Nouvelle station
+            + New Station
           </button>
         </div>
 

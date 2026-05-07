@@ -2,27 +2,47 @@ import { Link, useLocation } from "react-router-dom";
 
 const sections = [
   { path: "/admin",               icon: "📊", label: "Dashboard" },
-  { path: "/admin/etudiants",     icon: "🎓", label: "Étudiants" },
-  { path: "/admin/bus",           icon: "🚌", label: "Bus" },
-  { path: "/admin/lignes",        icon: "🗺️",  label: "Lignes" },
+  { path: "/admin/etudiants",     icon: "🎓", label: "Students" },
+  { path: "/admin/bus",           icon: "🚌", label: "Buses" },
+  { path: "/admin/lignes",        icon: "🗺️",  label: "Lines" },
   { path: "/admin/stations",      icon: "📍", label: "Stations" },
-  { path: "/admin/abonnements",   icon: "🔑", label: "Abonnements" },
-  { path: "/admin/trajets",       icon: "🛣️",  label: "Trajets" },
+  { path: "/admin/abonnements",   icon: "🔑", label: "Subscriptions" },
+  { path: "/admin/trajets",       icon: "🛣️",  label: "Trips" },
   { path: "/admin/incidents",     icon: "⚠️",  label: "Incidents" },
-  { path: "/admin/horaires",      icon: "⏰",  label: "Horaires" }
+  { path: "/admin/horaires",      icon: "⏰",  label: "Schedules" }
 ];
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ isOpen, onClose }) {
   const { pathname } = useLocation();
   return (
-    <aside className="fixed top-0 left-0 h-screen w-60 bg-[#0f0f1a] border-r border-white/5 flex flex-col z-40">
+    <>
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:flex fixed top-0 left-0 h-screen w-60 bg-[#0f0f1a] border-r border-white/5 flex flex-col z-40">
+        <SidebarContent pathname={pathname} />
+      </aside>
+
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div className="md:hidden fixed inset-0 bg-black/50 z-50" onClick={onClose}>
+          <aside className="w-60 h-full bg-[#0f0f1a] border-r border-white/5 flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <SidebarContent pathname={pathname} onLinkClick={onClose} />
+          </aside>
+        </div>
+      )}
+    </>
+  );
+}
+
+function SidebarContent({ pathname, onLinkClick }) {
+  return (
+    <>
       {/* Logo */}
       <div className="px-6 py-6 border-b border-white/5">
         <div className="flex items-center gap-3">
           <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-xl shadow-lg shadow-violet-900/50">🚌</span>
           <div>
             <p className="text-white font-black text-sm leading-none">TransportUST</p>
-            <p className="text-white/30 text-[10px] mt-0.5">Panel Admin</p>
+            <p className="text-white/30 text-[10px] mt-0.5">Admin Panel</p>
           </div>
         </div>
       </div>
@@ -35,6 +55,7 @@ export default function AdminSidebar() {
             <Link
               key={path}
               to={path}
+              onClick={onLinkClick}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                 active
                   ? "bg-violet-500/20 text-violet-300 border border-violet-500/20"
@@ -52,11 +73,12 @@ export default function AdminSidebar() {
       <div className="px-4 py-4 border-t border-white/5">
         <Link
           to="/"
+          onClick={onLinkClick}
           className="flex items-center gap-2 px-3 py-2.5 text-sm text-white/30 hover:text-white/60 transition-all rounded-xl hover:bg-white/5"
         >
-          <span>←</span> Vue publique
+          <span>←</span> Public View
         </Link>
       </div>
-    </aside>
+    </>
   );
 }

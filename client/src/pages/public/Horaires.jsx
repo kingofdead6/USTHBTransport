@@ -3,7 +3,7 @@ import { api } from "../../utils/api";
 import PublicNav from "../../components/public/PublicNav";
 
 const JOURS = ["SAMEDI","DIMANCHE","LUNDI","MARDI","MERCREDI","JEUDI"];
-const JOURS_FR = { SAMEDI:"Samedi", DIMANCHE:"Dimanche", LUNDI:"Lundi", MARDI:"Mardi", MERCREDI:"Mercredi", JEUDI:"Jeudi" };
+const JOURS_EN = { SAMEDI:"Saturday", DIMANCHE:"Sunday", LUNDI:"Monday", MARDI:"Tuesday", MERCREDI:"Wednesday", JEUDI:"Thursday" };
 
 export default function PublicHoraires() {
   const [horaires, setHoraires] = useState([]);
@@ -39,8 +39,8 @@ export default function PublicHoraires() {
     <div className="min-h-screen bg-slate-50 font-sans">
       <PublicNav />
       <div className="max-w-5xl mx-auto pt-28 px-6 pb-16">
-        <h1 className="text-4xl font-black text-slate-900 mb-2">Horaires</h1>
-        <p className="text-slate-500 mb-8">Consultez les horaires de départ par ligne et par jour.</p>
+        <h1 className="text-4xl font-black text-slate-900 mb-2">Schedules</h1>
+        <p className="text-slate-500 mb-8">Check departure times by line and day.</p>
 
         {/* Filters */}
         <div className="flex flex-wrap gap-3 mb-8">
@@ -49,7 +49,7 @@ export default function PublicHoraires() {
             onChange={(e) => setSelLigne(e.target.value)}
             className="px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-emerald-400 shadow-sm"
           >
-            <option value="">Toutes les lignes</option>
+            <option value="">All lines</option>
             {lignes.map((l) => <option key={l.id} value={l.id}>{l.code} — {l.nom}</option>)}
           </select>
 
@@ -64,14 +64,14 @@ export default function PublicHoraires() {
                     : "bg-white border-slate-200 text-slate-500 hover:border-emerald-300"
                 }`}
               >
-                {j ? JOURS_FR[j].slice(0, 3) : "Tous"}
+                {j ? JOURS_EN[j].slice(0, 3) : "All"}
               </button>
             ))}
           </div>
         </div>
 
         {loading ? (
-          <div className="text-center py-16 text-slate-400">Chargement...</div>
+          <div className="text-center py-16 text-slate-400">Loading...</div>
         ) : (
           <div className="space-y-6">
             {Object.values(byLigne).map(({ ligne, items }) => (
@@ -86,7 +86,7 @@ export default function PublicHoraires() {
                   <div className="flex flex-wrap gap-2">
                     {items.map((h) => (
                       <div key={h.id} className="flex flex-col items-center px-3 py-2 bg-slate-50 border border-slate-100 rounded-xl">
-                        <span className="text-[10px] text-slate-400 font-bold">{JOURS_FR[h.jourSemaine]?.slice(0,3)}</span>
+                        <span className="text-[10px] text-slate-400 font-bold">{JOURS_EN[h.jourSemaine]?.slice(0,3)}</span>
                         <span className="text-sm font-black text-slate-800">
                           {new Date(h.heureDepart).toLocaleTimeString("fr-DZ", { hour: "2-digit", minute: "2-digit" })}
                         </span>

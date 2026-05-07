@@ -6,17 +6,18 @@ import AdminSidebar from "../../components/admin/AdminSidebar";
 import StatCard from "../../components/shared/StatCard";
 
 const sections = [
-  { path: "/admin/etudiants",  icon: "🎓", title: "Étudiants",   desc: "Gérer les étudiants et leurs abonnements.",     color: "from-violet-600 to-indigo-600"  },
-  { path: "/admin/bus",        icon: "🚌", title: "Bus",         desc: "Gérer la flotte et les capacités.",              color: "from-amber-500 to-orange-600"  },
-  { path: "/admin/lignes",     icon: "🗺️",  title: "Lignes",     desc: "Gérer les lignes et leurs stations.",            color: "from-emerald-500 to-teal-600"  },
-  { path: "/admin/stations",   icon: "📍", title: "Stations",   desc: "Gérer les arrêts du réseau.",                    color: "from-sky-500 to-blue-600"      },
-  { path: "/admin/abonnements",icon: "🔑", title: "Abonnements",desc: "Affecter et historiser les abonnements.",         color: "from-pink-500 to-rose-600"     },
-  { path: "/admin/trajets",    icon: "🛣️",  title: "Trajets",    desc: "Suivre les passages et les retards.",            color: "from-lime-500 to-green-600"    },
-  { path: "/admin/incidents",  icon: "⚠️",  title: "Incidents",  desc: "Gérer les incidents et résoudre les retards.",   color: "from-red-500 to-rose-700"      },
+  { path: "/admin/etudiants",  icon: "🎓", title: "Students",   desc: "Manage students and their subscriptions.",     color: "from-violet-600 to-indigo-600"  },
+  { path: "/admin/bus",        icon: "🚌", title: "Buses",         desc: "Manage fleet and capacities.",              color: "from-amber-500 to-orange-600"  },
+  { path: "/admin/lignes",     icon: "🗺️",  title: "Lines",     desc: "Manage lines and their stations.",            color: "from-emerald-500 to-teal-600"  },
+  { path: "/admin/stations",   icon: "📍", title: "Stations",   desc: "Manage network stops.",                    color: "from-sky-500 to-blue-600"      },
+  { path: "/admin/abonnements",icon: "🔑", title: "Subscriptions",desc: "Assign and historize subscriptions.",         color: "from-pink-500 to-rose-600"     },
+  { path: "/admin/trajets",    icon: "🛣️",  title: "Trips",    desc: "Track passages and delays.",            color: "from-lime-500 to-green-600"    },
+  { path: "/admin/incidents",  icon: "⚠️",  title: "Incidents",  desc: "Manage incidents and resolve delays.",   color: "from-red-500 to-rose-700"      },
 ];
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     api.get("/stats/dashboard").then((r) => setStats(r.data.data)).catch(() => {});
@@ -24,8 +25,26 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-[#0a0a14] text-white flex">
-      <AdminSidebar />
-      <main className="ml-60 flex-1 p-8">
+      <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      
+      {/* Mobile Header */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-[#0f0f1a] border-b border-white/5 px-4 py-3 flex items-center justify-between">
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="p-2 rounded-lg hover:bg-white/5 transition-colors"
+        >
+          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+        <div className="flex items-center gap-2">
+          <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-sm shadow-lg shadow-violet-900/50">🚌</span>
+          <span className="font-black text-sm">TransportUST</span>
+        </div>
+        <div></div> {/* Spacer */}
+      </div>
+
+      <main className="ml-0 md:ml-60 flex-1 p-4 md:p-8 pt-16 md:pt-8">
         {/* Header */}
         <div className="mb-10">
           <motion.h1
@@ -33,9 +52,9 @@ export default function AdminDashboard() {
             animate={{ opacity: 1, y: 0 }}
             className="text-3xl font-black tracking-tight bg-gradient-to-r from-white to-white/50 bg-clip-text text-transparent"
           >
-            Tableau de bord
+            Dashboard
           </motion.h1>
-          <p className="text-white/35 text-sm mt-1">Système de Gestion du Transport Universitaire · USTHB</p>
+          <p className="text-white/35 text-sm mt-1">University Transport Management System · USTHB</p>
         </div>
 
         {/* Stats */}
@@ -46,8 +65,8 @@ export default function AdminDashboard() {
             transition={{ delay: 0.1 }}
             className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10"
           >
-            <StatCard label="Étudiants"         value={stats.totalEtudiants}          icon="🎓" color="violet" />
-            <StatCard label="Bus opérationnels" value={stats.busOperationnels}         icon="🚌" color="amber"  />
+            <StatCard label="Students"         value={stats.totalEtudiants}          icon="🎓" color="violet" />
+            <StatCard label="Operational Buses" value={stats.busOperationnels}         icon="🚌" color="amber"  />
             <StatCard label="Lignes actives"    value={stats.totalLignes}             icon="🗺️"  color="emerald"/>
             <StatCard label="Incidents ouverts" value={stats.incidentsOuverts}        icon="⚠️"  color="red"    />
             <StatCard label="Sans abonnement"   value={stats.etudiantsSansAbonnement} icon="🔑" color="sky"    sub="étudiants non abonnés" />

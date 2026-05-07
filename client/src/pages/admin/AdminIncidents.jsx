@@ -63,7 +63,7 @@ export default function AdminIncidents() {
       else                 await api.put(`/incidents/${body.id}`, payload);
       setForm(null);
       fetchIncidents();
-    } catch (e) { alert(e?.response?.data?.message || "Erreur"); }
+    } catch (e) { alert(e?.response?.data?.message || "Error"); }
     finally { setSaving(false); }
   };
 
@@ -84,25 +84,25 @@ export default function AdminIncidents() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-black">⚠️ Incidents</h1>
-            <p className="text-white/35 text-sm mt-1">{pagination.total ?? "—"} incidents enregistrés</p>
+            <p className="text-white/35 text-sm mt-1">{pagination.total ?? "—"} incidents saved</p>
           </div>
           <button onClick={openAdd} className="px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-red-900/30">
-            + Signaler un incident
+            + Report an incident
           </button>
         </div>
 
         <div className="flex gap-3 mb-6">
           <select value={statutFilter} onChange={(e) => { setStatutFilter(e.target.value); setPage(1); }}
             className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white/60 focus:border-red-400/50 outline-none">
-            <option value="">Tous les statuts</option>
-            <option value="OUVERT">Ouvert</option>
-            <option value="EN_COURS_RESOLUTION">En cours</option>
-            <option value="RESOLU">Résolu</option>
-            <option value="FERME">Fermé</option>
+            <option value="">All statuses</option>
+            <option value="OUVERT">Open</option>
+            <option value="EN_COURS_RESOLUTION">In Progress</option>
+            <option value="RESOLU">Resolved</option>
+            <option value="FERME">Closed</option>
           </select>
           <select value={typeFilter} onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }}
             className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white/60 focus:border-red-400/50 outline-none">
-            <option value="">Tous les types</option>
+            <option value="">All types</option>
             {Object.keys(TYPE_ICONS).map((t) => <option key={t} value={t}>{t.replace(/_/g, " ")}</option>)}
           </select>
         </div>
@@ -111,14 +111,14 @@ export default function AdminIncidents() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/10">
-                {["Type", "Description", "Bus", "Retard", "Date", "Statut", "Actions"].map((h) => (
+                {["Type", "Description", "Bus", "Retard", "Date", "Status", "Actions"].map((h) => (
                   <th key={h} className="text-left px-5 py-4 text-xs font-bold tracking-widest text-white/25 uppercase">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={7} className="text-center py-12 text-white/25">Chargement...</td></tr>
+                <tr><td colSpan={7} className="text-center py-12 text-white/25">Loading...</td></tr>
               ) : incidents.map((inc) => {
                 const statut = STATUT_COLORS[inc.statut];
                 return (
@@ -144,9 +144,9 @@ export default function AdminIncidents() {
                     </td>
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-2">
-                        <button onClick={() => openDetail(inc)} className="px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-white/60 hover:text-white transition-all">Voir</button>
+                        <button onClick={() => openDetail(inc)} className="px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-white/60 hover:text-white transition-all">View</button>
                         {inc.statut === "OUVERT" && (
-                          <button onClick={() => resoudre(inc.id)} className="px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-lg text-xs text-emerald-400 transition-all">Résoudre</button>
+                          <button onClick={() => resoudre(inc.id)} className="px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-lg text-xs text-emerald-400 transition-all">Resolve</button>
                         )}
                       </div>
                     </td>
@@ -172,14 +172,14 @@ export default function AdminIncidents() {
               <Row label="Type"        val={selected.type?.replace(/_/g, " ")} />
               <Row label="Description" val={selected.description} />
               <Row label="Bus"         val={selected.bus?.immatriculation} />
-              <Row label="Ligne"       val={selected.trajet?.ligne?.code} />
-              <Row label="Retard"      val={selected.retardImpute > 0 ? `${selected.retardImpute} min` : null} />
-              <Row label="Survenu le"  val={selected.dateSurvenance?.split("T")[0]} />
-              <Row label="Résolu le"   val={selected.dateResolution?.split("T")[0]} />
-              <Row label="Statut"      val={STATUT_COLORS[selected.statut]?.label} />
+              <Row label="Line"       val={selected.trajet?.ligne?.code} />
+              <Row label="Delay"      val={selected.retardImpute > 0 ? `${selected.retardImpute} min` : null} />
+              <Row label="Occurred on"  val={selected.dateSurvenance?.split("T")[0]} />
+              <Row label="Resolved on"   val={selected.dateResolution?.split("T")[0]} />
+              <Row label="Status"      val={STATUT_COLORS[selected.statut]?.label} />
               {selected.etudiant && (
                 <div className="mt-3 p-3 bg-violet-500/5 border border-violet-500/15 rounded-xl text-xs text-white/50">
-                  Signalé par : {selected.etudiant.nom} {selected.etudiant.prenom}
+                  Reported by : {selected.etudiant.nom} {selected.etudiant.prenom}
                 </div>
               )}
             </Modal>
@@ -189,7 +189,7 @@ export default function AdminIncidents() {
         {/* Form Modal */}
         <AnimatePresence>
           {form && (
-            <Modal onClose={() => setForm(null)} title="Signaler un incident">
+            <Modal onClose={() => setForm(null)} title="Report an incident">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Type</label>
@@ -199,7 +199,7 @@ export default function AdminIncidents() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Date survenance</label>
+                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Date occurred</label>
                   <input type="datetime-local" value={form.dateSurvenance ?? ""} onChange={(e) => setForm(f => ({ ...f, dateSurvenance: e.target.value }))}
                     className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:border-red-400/50 outline-none" />
                 </div>
@@ -209,18 +209,18 @@ export default function AdminIncidents() {
                     className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:border-red-400/50 outline-none resize-none" />
                 </div>
                 <div>
-                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Bus ID (optionnel)</label>
+                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Bus ID (optional)</label>
                   <input type="number" value={form.busId ?? ""} onChange={(e) => setForm(f => ({ ...f, busId: e.target.value }))}
                     className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:border-red-400/50 outline-none" />
                 </div>
                 <div>
-                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Retard imputé (min)</label>
+                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Delay imputed (min)</label>
                   <input type="number" value={form.retardImpute ?? 0} onChange={(e) => setForm(f => ({ ...f, retardImpute: e.target.value }))}
                     className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:border-red-400/50 outline-none" />
                 </div>
               </div>
               <button onClick={save} disabled={saving} className="w-full mt-6 py-3.5 bg-red-500 hover:bg-red-600 disabled:opacity-40 text-white font-bold rounded-xl transition-all">
-                {saving ? "Enregistrement..." : "Signaler l'incident"}
+                {saving ? "Submitting..." : "Report Incident"}
               </button>
             </Modal>
           )}

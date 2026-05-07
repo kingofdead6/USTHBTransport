@@ -68,12 +68,12 @@ export default function AdminAbonnements() {
     try {
       await api.patch(`/abonnements/${changeForm.etudiantId}/changer-ligne`, {
         nouvelleLigneId: parseInt(changeForm.nouvelleLigneId),
-        motif:           changeForm.motif || "Changement de ligne",
+        motif:           changeForm.motif || "Line Change",
         dateChangement:  new Date().toISOString(),
       });
       setChangeForm(null);
       fetchAll();
-    } catch (e) { alert(e?.response?.data?.message || "Erreur"); }
+    } catch (e) { alert(e?.response?.data?.message || "Error"); }
     finally { setChangeSaving(false); }
   };
 
@@ -83,37 +83,37 @@ export default function AdminAbonnements() {
       <main className="ml-60 flex-1 p-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-black">🔑 Abonnements</h1>
-            <p className="text-white/35 text-sm mt-1">{abonnements.length} abonnements actifs</p>
+            <h1 className="text-2xl font-black">🔑 Subscriptions</h1>
+            <p className="text-white/35 text-sm mt-1">{abonnements.length} active subscriptions</p>
           </div>
         </div>
 
         {/* New subscription quick panel */}
         <div className="bg-white/[0.03] border border-pink-500/20 rounded-2xl p-6 mb-8">
-          <h2 className="text-sm font-bold text-pink-300 mb-4">➕ Nouvel abonnement</h2>
+          <h2 className="text-sm font-bold text-pink-300 mb-4">➕ New Subscription</h2>
           <div className="flex gap-3 flex-wrap">
             <div className="flex-1 min-w-[140px]">
-              <label className="text-xs text-white/25 uppercase tracking-widest mb-1 block">ID Étudiant</label>
+              <label className="text-xs text-white/25 uppercase tracking-widest mb-1 block">Student ID</label>
               <input type="number" value={newForm.etudiantId} onChange={(e) => setNewForm(f => ({ ...f, etudiantId: e.target.value }))}
                 className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:border-pink-400/50 outline-none" />
             </div>
             <div className="flex-1 min-w-[180px]">
-              <label className="text-xs text-white/25 uppercase tracking-widest mb-1 block">Ligne</label>
+              <label className="text-xs text-white/25 uppercase tracking-widest mb-1 block">Line</label>
               <select value={newForm.ligneId} onChange={(e) => setNewForm(f => ({ ...f, ligneId: e.target.value }))}
                 className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:border-pink-400/50 outline-none">
-                <option value="">Sélectionner...</option>
+                <option value="">Select...</option>
                 {lignes.map((l) => <option key={l.id} value={l.id}>{l.code} — {l.nom}</option>)}
               </select>
             </div>
             <div className="flex-1 min-w-[140px]">
-              <label className="text-xs text-white/25 uppercase tracking-widest mb-1 block">Date début</label>
+              <label className="text-xs text-white/25 uppercase tracking-widest mb-1 block">Start Date</label>
               <input type="date" value={newForm.dateDebut} onChange={(e) => setNewForm(f => ({ ...f, dateDebut: e.target.value }))}
                 className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:border-pink-400/50 outline-none" />
             </div>
             <div className="flex items-end">
               <button onClick={subscribe} disabled={saving || !newForm.etudiantId || !newForm.ligneId || !newForm.dateDebut}
                 className="px-6 py-2.5 bg-pink-500 hover:bg-pink-600 disabled:opacity-30 text-white font-bold rounded-xl text-sm transition-all">
-                {saving ? "..." : "Abonner"}
+                {saving ? "..." : "Subscribe"}
               </button>
             </div>
           </div>
@@ -123,7 +123,7 @@ export default function AdminAbonnements() {
         <div className="flex gap-3 mb-6">
           <select value={ligneFilter} onChange={(e) => setLigneFilter(e.target.value)}
             className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white/60 focus:border-pink-400/50 outline-none">
-            <option value="">Toutes les lignes</option>
+            <option value="">All Lines</option>
             {lignes.map((l) => <option key={l.id} value={l.id}>{l.code} — {l.nom}</option>)}
           </select>
         </div>
@@ -132,14 +132,14 @@ export default function AdminAbonnements() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/10">
-                {["Étudiant", "Matricule", "Ligne", "Depuis", "Statut", "Actions"].map((h) => (
+                {["Student", "Registration Number", "Line", "Since", "Status", "Actions"].map((h) => (
                   <th key={h} className="text-left px-5 py-4 text-xs font-bold tracking-widest text-white/25 uppercase">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={6} className="text-center py-12 text-white/25">Chargement...</td></tr>
+                <tr><td colSpan={6} className="text-center py-12 text-white/25">Loading...</td></tr>
               ) : abonnements.map((a) => {
                 const statut = STATUT_COLORS[a.statut];
                 return (
@@ -163,7 +163,7 @@ export default function AdminAbonnements() {
                     </td>
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-2">
-                        <button onClick={() => openChangeLigne(a)} className="px-3 py-1.5 bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/20 rounded-lg text-xs text-pink-400 transition-all whitespace-nowrap">Changer ligne</button>
+                        <button onClick={() => openChangeLigne(a)} className="px-3 py-1.5 bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/20 rounded-lg text-xs text-pink-400 transition-all whitespace-nowrap">Change Line</button>
                         <button onClick={() => resilier(a.etudiantId)} className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-lg text-xs text-red-400 transition-all">Résilier</button>
                       </div>
                     </td>
@@ -177,18 +177,18 @@ export default function AdminAbonnements() {
         {/* Change Ligne Modal */}
         <AnimatePresence>
           {changeForm && (
-            <Modal onClose={() => setChangeForm(null)} title={`Changer la ligne — ${changeForm.nom}`}>
+            <Modal onClose={() => setChangeForm(null)} title={`Change Line — ${changeForm.nom}`}>
               <div className="space-y-4">
                 <div>
-                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Nouvelle ligne</label>
+                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">New Line</label>
                   <select value={changeForm.nouvelleLigneId} onChange={(e) => setChangeForm(f => ({ ...f, nouvelleLigneId: e.target.value }))}
                     className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:border-pink-400/50 outline-none">
-                    <option value="">Sélectionner...</option>
+                    <option value="">Select...</option>
                     {lignes.map((l) => <option key={l.id} value={l.id}>{l.code} — {l.nom}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Motif</label>
+                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Reason</label>
                   <input type="text" value={changeForm.motif} onChange={(e) => setChangeForm(f => ({ ...f, motif: e.target.value }))}
                     placeholder="ex: Déménagement, Changement de filière..."
                     className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:border-pink-400/50 outline-none placeholder:text-white/20" />

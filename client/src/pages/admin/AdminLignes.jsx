@@ -46,12 +46,12 @@ export default function AdminLignes() {
       else                 await api.put(`/lignes/${body.id}`, payload);
       setForm(null);
       fetchLignes();
-    } catch (e) { alert(e?.response?.data?.message || "Erreur"); }
+    } catch (e) { alert(e?.response?.data?.message || "Error"); }
     finally { setSaving(false); }
   };
 
   const del = async (id) => {
-    if (!confirm("Supprimer cette ligne ?")) return;
+    if (!confirm("Delete this line?")) return;
     await api.delete(`/lignes/${id}`);
     fetchLignes();
   };
@@ -67,11 +67,11 @@ export default function AdminLignes() {
       <main className="ml-60 flex-1 p-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-black">🗺️ Lignes</h1>
-            <p className="text-white/35 text-sm mt-1">{lignes.length} lignes configurées</p>
+            <h1 className="text-2xl font-black">🗺️ Lines</h1>
+            <p className="text-white/35 text-sm mt-1">{lignes.length} lines configured</p>
           </div>
           <button onClick={openAdd} className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-emerald-900/30">
-            + Nouvelle ligne
+            + New Line
           </button>
         </div>
 
@@ -121,7 +121,7 @@ export default function AdminLignes() {
 
                 <div className="flex gap-2">
                   <button onClick={() => openDetail(l)} className="flex-1 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-white/60 hover:text-white transition-all">Voir</button>
-                  <button onClick={() => openEdit(l)}   className="flex-1 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-lg text-xs text-emerald-400 transition-all">Modifier</button>
+                  <button onClick={() => openEdit(l)}   className="flex-1 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-lg text-xs text-emerald-400 transition-all">Edit</button>
                   <button onClick={() => del(l.id)}     className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-lg text-xs text-red-400 transition-all">✕</button>
                 </div>
               </motion.div>
@@ -172,15 +172,15 @@ export default function AdminLignes() {
         {/* Form Modal */}
         <AnimatePresence>
           {form && (
-            <Modal onClose={() => setForm(null)} title={form._mode === "add" ? "Nouvelle ligne" : "Modifier la ligne"}>
+            <Modal onClose={() => setForm(null)} title={form._mode === "add" ? "New Line" : "Edit Line"}>
               <div className="grid grid-cols-2 gap-4">
                 {[
                   ["Code",           "code",           "text"],
-                  ["Nom",            "nom",            "text"],
-                  ["Point de départ","pointDepart",    "text"],
-                  ["Point d'arrivée","pointArrivee",   "text"],
+                  ["Name",            "nom",            "text"],
+                  ["Starting Point","pointDepart",    "text"],
+                  ["Ending Point","pointArrivee",   "text"],
                   ["Distance (km)",  "distanceKm",     "number"],
-                  ["Durée (min)",    "dureeEstimeeMin","number"],
+                  ["Duration (min)",    "dureeEstimeeMin","number"],
                 ].map(([label, key, type]) => (
                   <div key={key} className={key === "nom" || key === "pointDepart" || key === "pointArrivee" ? "col-span-2" : ""}>
                     <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">{label}</label>
@@ -189,12 +189,12 @@ export default function AdminLignes() {
                   </div>
                 ))}
                 <div>
-                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Statut</label>
+                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Status</label>
                   <select value={form.statut} onChange={(e) => setForm(f => ({ ...f, statut: e.target.value }))}
                     className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:border-emerald-400/50 outline-none">
                     <option value="ACTIVE">Active</option>
-                    <option value="SUSPENDUE">Suspendue</option>
-                    <option value="SUPPRIMEE">Supprimée</option>
+                    <option value="SUSPENDUE">Suspended</option>
+                    <option value="SUPPRIMEE">Deleted</option>
                   </select>
                 </div>
                 <div className="col-span-2">
@@ -204,7 +204,7 @@ export default function AdminLignes() {
                 </div>
               </div>
               <button onClick={save} disabled={saving} className="w-full mt-6 py-3.5 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-40 text-white font-bold rounded-xl transition-all">
-                {saving ? "Enregistrement..." : "Enregistrer"}
+                {saving ? "Saving..." : "Save"}
               </button>
             </Modal>
           )}

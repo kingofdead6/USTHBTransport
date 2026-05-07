@@ -4,13 +4,13 @@ import { api, fmt } from "../../utils/api";
 import PublicNav from "../../components/public/PublicNav";
 
 const TYPE_LABELS = {
-  PANNE_MECANIQUE:   "🔧 Panne mécanique",
+  PANNE_MECANIQUE:   "🔧 Mechanical Failure",
   ACCIDENT:          "🚨 Accident",
-  RETARD_TRAFIC:     "🚦 Retard trafic",
-  SURCHARGE:         "👥 Surcharge",
-  ABSENCE_CHAUFFEUR: "👤 Absence chauffeur",
-  CONDITIONS_METEO:  "🌩️ Météo",
-  AUTRE:             "ℹ️ Autre",
+  RETARD_TRAFIC:     "🚦 Traffic Delay",
+  SURCHARGE:         "👥 Overload",
+  ABSENCE_CHAUFFEUR: "👤 Driver Absence",
+  CONDITIONS_METEO:  "🌩️ Weather Conditions",
+  AUTRE:             "ℹ️ Other",
 };
 
 const STATUS_STYLE = {
@@ -21,12 +21,12 @@ const STATUS_STYLE = {
 };
 
 const REPORT_TYPES = [
-  { key: "ACCIDENT",        label: "Accident",         icon: "🚨" },
-  { key: "PANNE_MECANIQUE", label: "Panne mécanique",  icon: "🔧" },
-  { key: "RETARD_TRAFIC",   label: "Retard trafic",    icon: "🚦" },
-  { key: "SURCHARGE",       label: "Surcharge",        icon: "👥" },
-  { key: "CONDITIONS_METEO",label: "Intempéries",      icon: "🌩️" },
-  { key: "AUTRE",           label: "Autre",            icon: "ℹ️" },
+  { key: "ACCIDENT",        label: "Accident",           icon: "🚨" },
+  { key: "PANNE_MECANIQUE", label: "Mechanical Failure", icon: "🔧" },
+  { key: "RETARD_TRAFIC",   label: "Traffic Delay",      icon: "🚦" },
+  { key: "SURCHARGE",       label: "Overload",           icon: "👥" },
+  { key: "CONDITIONS_METEO",label: "Bad Weather",        icon: "🌩️" },
+  { key: "AUTRE",           label: "Other",              icon: "ℹ️" },
 ];
 
 const EMPTY_REPORT = { type: "ACCIDENT", description: "", etudiantId: "", busId: "" };
@@ -68,7 +68,7 @@ export default function PublicIncidents() {
         fetchIncidents();
       }, 2500);
     } catch (e) {
-      alert(e?.response?.data?.message || "Erreur lors du signalement");
+      alert(e?.response?.data?.message || "Error submitting report");
     } finally {
       setSubmitting(false);
     }
@@ -82,15 +82,15 @@ export default function PublicIncidents() {
         {/* Header */}
         <div className="flex items-start justify-between mb-8 gap-4 flex-wrap">
           <div>
-            <h1 className="text-4xl font-black text-slate-900 mb-2">Incidents & Retards</h1>
-            <p className="text-slate-500">Incidents actuellement ouverts sur le réseau.</p>
+            <h1 className="text-4xl font-black text-slate-900 mb-2">Incidents & Delays</h1>
+            <p className="text-slate-500">Currently open incidents on the network.</p>
           </div>
           <button
             onClick={() => setShowForm((v) => !v)}
             className="flex items-center gap-2 px-5 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-2xl text-sm transition-all shadow-lg shadow-red-200 flex-shrink-0"
           >
             <span className="text-base">🚨</span>
-            Signaler un incident
+            Report an Incident
           </button>
         </div>
 
@@ -111,16 +111,16 @@ export default function PublicIncidents() {
                   className="text-center py-6"
                 >
                   <span className="text-5xl block mb-3">✅</span>
-                  <p className="font-black text-slate-800 text-lg">Signalement envoyé !</p>
-                  <p className="text-slate-500 text-sm mt-1">Merci, notre équipe va traiter votre signalement.</p>
+                  <p className="font-black text-slate-800 text-lg">Report Submitted!</p>
+                  <p className="text-slate-500 text-sm mt-1">Thank you, our team will process your report.</p>
                 </motion.div>
               ) : (
                 <>
-                  <h2 className="font-black text-slate-900 text-lg mb-5">Signaler un incident</h2>
+                  <h2 className="font-black text-slate-900 text-lg mb-5">Report an Incident</h2>
 
                   {/* Type selector */}
                   <div className="mb-5">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 block">Type d'incident</label>
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 block">Incident Type</label>
                     <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                       {REPORT_TYPES.map(({ key, label, icon }) => (
                         <button
@@ -147,7 +147,7 @@ export default function PublicIncidents() {
                     <textarea
                       value={form.description}
                       onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))}
-                      placeholder="Décrivez ce que vous avez observé (lieu, heure, détails...)."
+                      placeholder="Describe what you observed (location, time, details...)"
                       rows={3}
                       className="w-full px-4 py-3 border border-slate-200 rounded-2xl text-sm text-slate-800 placeholder:text-slate-300 focus:border-red-300 focus:ring-2 focus:ring-red-100 outline-none resize-none transition-all"
                     />
@@ -156,7 +156,7 @@ export default function PublicIncidents() {
                   {/* Optional fields */}
                   <div className="grid grid-cols-2 gap-3 mb-6">
                     <div>
-                      <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 block">Votre ID étudiant <span className="text-slate-300 font-normal">(optionnel)</span></label>
+                      <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 block">Your Student ID <span className="text-slate-300 font-normal">(optional)</span></label>
                       <input
                         type="number"
                         value={form.etudiantId}
@@ -166,7 +166,7 @@ export default function PublicIncidents() {
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 block">ID du bus <span className="text-slate-300 font-normal">(optionnel)</span></label>
+                      <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 block">Bus ID <span className="text-slate-300 font-normal">(optional)</span></label>
                       <input
                         type="number"
                         value={form.busId}
@@ -184,13 +184,13 @@ export default function PublicIncidents() {
                       disabled={submitting || !form.description.trim()}
                       className="flex-1 py-3.5 bg-red-500 hover:bg-red-600 disabled:opacity-40 text-white font-bold rounded-2xl text-sm transition-all shadow-lg shadow-red-100"
                     >
-                      {submitting ? "Envoi en cours..." : "Envoyer le signalement"}
+                      {submitting ? "Submitting..." : "Submit Report"}
                     </button>
                     <button
                       onClick={() => { setShowForm(false); setForm({ ...EMPTY_REPORT }); }}
                       className="px-6 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-2xl text-sm transition-all"
                     >
-                      Annuler
+                      Cancel
                     </button>
                   </div>
                 </>
@@ -201,12 +201,12 @@ export default function PublicIncidents() {
 
         {/* Incident list */}
         {loading ? (
-          <div className="text-center py-16 text-slate-400">Chargement...</div>
+          <div className="text-center py-16 text-slate-400">Loading...</div>
         ) : incidents.length === 0 ? (
           <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-12 text-center">
             <span className="text-4xl block mb-3">✅</span>
-            <p className="font-bold text-emerald-700">Aucun incident en cours</p>
-            <p className="text-emerald-600/70 text-sm mt-1">Le réseau fonctionne normalement.</p>
+            <p className="font-bold text-emerald-700">No Current Incidents</p>
+            <p className="text-emerald-600/70 text-sm mt-1">The network is operating normally.</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -221,10 +221,10 @@ export default function PublicIncidents() {
                   <div>
                     <p className="font-bold text-slate-800">{TYPE_LABELS[inc.type] ?? inc.type}</p>
                     {inc.trajet?.ligne && (
-                      <p className="text-sm text-slate-500 mt-0.5">Ligne : {inc.trajet.ligne.nom}</p>
+                      <p className="text-sm text-slate-500 mt-0.5">Line: {inc.trajet.ligne.nom}</p>
                     )}
                     {inc.bus && (
-                      <p className="text-xs text-slate-400">Bus : {inc.bus.immatriculation}</p>
+                      <p className="text-xs text-slate-400">Bus: {inc.bus.immatriculation}</p>
                     )}
                   </div>
                   <span className={`px-3 py-1 rounded-full text-xs font-semibold border flex-shrink-0 ${STATUS_STYLE[inc.statut]}`}>
@@ -234,7 +234,7 @@ export default function PublicIncidents() {
                 <p className="text-slate-600 text-sm leading-relaxed mb-3">{inc.description}</p>
                 <div className="flex items-center gap-4 text-xs text-slate-400">
                   <span>📅 {fmt.datetime ? fmt.datetime(inc.dateSurvenance) : inc.dateSurvenance?.split("T")[0]}</span>
-                  {inc.retardImpute > 0 && <span>⏱ +{inc.retardImpute} min de retard</span>}
+                  {inc.retardImpute > 0 && <span>⏱ +{inc.retardImpute} min delay</span>}
                 </div>
               </motion.div>
             ))}

@@ -6,7 +6,7 @@ import PublicLignes      from "./pages/public/Lignes";
 import PublicLigneDetail from "./pages/public/LigneDetail";
 import PublicHoraires    from "./pages/public/Horaires";
 import PublicIncidents   from "./pages/public/Incidents";
-
+import Footer           from "./pages/public/Footer";  
 // Admin pages
 import AdminDashboard    from "./pages/admin/Dashboard";
 import AdminEtudiants    from "./pages/admin/Etudiants";
@@ -40,6 +40,7 @@ export default function App() {
         <Route path="/admin/abonnements"  element={<AdminAbonnements />} /> 
         <Route path="/admin/horaires"     element={<AdminHoraires />} />
       </Routes>
+      <Footer />
     </BrowserRouter>
   );
 }

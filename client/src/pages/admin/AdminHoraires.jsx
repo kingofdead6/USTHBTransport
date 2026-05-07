@@ -3,15 +3,15 @@ import { AnimatePresence, motion } from "framer-motion";
 import { api } from "../../utils/api";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 
-const JOURS = ["SAMEDI", "DIMANCHE", "LUNDI", "MARDI", "MERCREDI", "JEUDI"];
-const JOUR_SHORT = { SAMEDI:"Sam", DIMANCHE:"Dim", LUNDI:"Lun", MARDI:"Mar", MERCREDI:"Mer", JEUDI:"Jeu" };
+const JOURS = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"];
+const JOUR_SHORT = { Saturday:"Sat", Sunday:"Sun", Monday:"Mon", Tuesday:"Tue", Wednesday:"Wed", Thursday:"Thu" };
 
 const SENS_COLORS = {
   ALLER:  { bg: "bg-indigo-500/10", text: "text-indigo-300", border: "border-indigo-500/20" },
   RETOUR: { bg: "bg-pink-500/10",   text: "text-pink-300",   border: "border-pink-500/20" },
 };
 
-const EMPTY = { ligneId: "", jourSemaine: "LUNDI", heureDepart: "", heureArrivee: "", sens: "ALLER", actif: true };
+const EMPTY = { ligneId: "", jourSemaine: "Monday", heureDepart: "", heureArrivee: "", sens: "Go", actif: true };
 
 export default function AdminHoraires() {
   const [horaires, setHoraires]   = useState([]);
@@ -63,12 +63,12 @@ export default function AdminHoraires() {
       else                 await api.put(`/horaires/${body.id}`, payload);
       setForm(null);
       fetchAll();
-    } catch (e) { alert(e?.response?.data?.message || "Erreur"); }
+    } catch (e) { alert(e?.response?.data?.message || "Error"); }
     finally { setSaving(false); }
   };
 
   const del = async (id) => {
-    if (!confirm("Supprimer cet horaire ?")) return;
+    if (!confirm("Delete this schedule?")) return;
     await api.delete(`/horaires/${id}`);
     fetchAll();
   };
@@ -94,11 +94,11 @@ export default function AdminHoraires() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-black">🕐 Horaires</h1>
-            <p className="text-white/35 text-sm mt-1">{horaires.length} créneaux configurés</p>
+            <h1 className="text-2xl font-black">🕐 Timing</h1>
+            <p className="text-white/35 text-sm mt-1">{horaires.length} schedules configured</p>
           </div>
           <button onClick={openAdd} className="px-5 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-indigo-900/30">
-            + Nouvel horaire
+            + New Schedule
           </button>
         </div>
 
@@ -106,20 +106,20 @@ export default function AdminHoraires() {
         <div className="flex gap-3 mb-8">
           <select value={ligneFilter} onChange={(e) => setLigneFilter(e.target.value)}
             className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white/60 focus:border-indigo-400/50 outline-none">
-            <option value="">Toutes les lignes</option>
+            <option value="">All Lines</option>
             {lignes.map((l) => <option key={l.id} value={l.id}>{l.code} — {l.nom}</option>)}
           </select>
           <select value={jourFilter} onChange={(e) => setJourFilter(e.target.value)}
             className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white/60 focus:border-indigo-400/50 outline-none">
-            <option value="">Tous les jours</option>
+            <option value="">All Days</option>
             {JOURS.map((j) => <option key={j} value={j}>{j}</option>)}
           </select>
         </div>
 
         {loading ? (
-          <div className="text-center py-16 text-white/25">Chargement...</div>
+          <div className="text-center py-16 text-white/25">Loading...</div>
         ) : Object.keys(grouped).length === 0 ? (
-          <div className="text-center py-16 text-white/25">Aucun horaire trouvé</div>
+          <div className="text-center py-16 text-white/25">No schedules found</div>
         ) : (
           <div className="space-y-6">
             {Object.entries(grouped).map(([code, { ligne, slots }]) => (
@@ -159,7 +159,7 @@ export default function AdminHoraires() {
                                   <div key={h.id} className={`group rounded-lg px-2.5 py-2 border ${sens.border} ${sens.bg} ${!h.actif ? "opacity-35" : ""} transition-all`}>
                                     <div className="flex items-center justify-between gap-1">
                                       <span className={`font-black text-sm ${sens.text}`}>{h.heureDepart?.slice(11, 16)}</span>
-                                      <span className={`text-[10px] px-1.5 py-0.5 rounded ${sens.bg} ${sens.text} border ${sens.border}`}>{h.sens === "ALLER" ? "→" : "←"}</span>
+                                      <span className={`text-[10px] px-1.5 py-0.5 rounded ${sens.bg} ${sens.text} border ${sens.border}`}>{h.sens === "Go" ? "→" : "←"}</span>
                                     </div>
                                     <p className="text-white/25 text-[11px] mt-0.5">→ {h.heureArrivee?.slice(11, 16)}</p>
                                     <div className="flex gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -190,7 +190,7 @@ export default function AdminHoraires() {
         {/* Form Modal */}
         <AnimatePresence>
           {form && (
-            <Modal onClose={() => setForm(null)} title={form._mode === "add" ? "Nouvel horaire" : "Modifier l'horaire"}>
+            <Modal onClose={() => setForm(null)} title={form._mode === "add" ? "New Schedule" : "Edit Schedule"}>
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
                   <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Ligne</label>
@@ -235,7 +235,7 @@ export default function AdminHoraires() {
               </div>
               <button onClick={save} disabled={saving || !form.ligneId || !form.heureDepart || !form.heureArrivee}
                 className="w-full mt-6 py-3.5 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-40 text-white font-bold rounded-xl transition-all">
-                {saving ? "Enregistrement..." : "Enregistrer"}
+                {saving ? "Saving..." : "Save"}
               </button>
             </Modal>
           )}

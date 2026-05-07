@@ -18,23 +18,23 @@ export default function PublicHome() {
       <section className="pt-32 pb-24 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <span className="inline-block px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold tracking-widest uppercase mb-6">
-            USTHB · Système de Transport
+            USTHB · Transport System
           </span>
           <h1 className="text-5xl md:text-7xl font-black text-slate-900 leading-none tracking-tight mb-6">
-            Transport
+            University
             <span className="block bg-gradient-to-r from-emerald-500 to-teal-600 bg-clip-text text-transparent">
-              Universitaire
+              Transport
             </span>
           </h1>
           <p className="text-slate-500 text-lg max-w-xl mx-auto leading-relaxed mb-10">
-            Consultez les lignes, horaires et disponibilités du transport étudiant de l'USTHB en temps réel.
+            Check the lines, schedules and real-time availability of USTHB student transport.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Link to="/lignes" className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold rounded-2xl shadow-lg shadow-emerald-200 hover:shadow-emerald-300 hover:-translate-y-0.5 transition-all">
-              Voir les lignes →
+              View Lines →
             </Link>
             <Link to="/horaires" className="px-8 py-4 bg-white border border-slate-200 text-slate-700 font-bold rounded-2xl hover:border-emerald-300 hover:-translate-y-0.5 transition-all shadow-sm">
-              Consulter les horaires
+              Check Schedules
             </Link>
           </div>
         </div>
@@ -48,7 +48,7 @@ export default function PublicHome() {
               { label: "Étudiants", value: stats.totalEtudiants, icon: "🎓", bg: "bg-indigo-50 border-indigo-100", text: "text-indigo-700" },
               { label: "Lignes actives", value: stats.totalLignes, icon: "🗺️", bg: "bg-emerald-50 border-emerald-100", text: "text-emerald-700" },
               { label: "Bus", value: stats.totalBus, icon: "🚌", bg: "bg-amber-50 border-amber-100", text: "text-amber-700" },
-              { label: "Incidents ouverts", value: stats.incidentsOuverts, icon: "⚠️", bg: "bg-red-50 border-red-100", text: "text-red-700" },
+            { label: "Open Incidents", value: stats.incidentsOuverts, icon: "⚠️", bg: "bg-red-50 border-red-100", text: "text-red-700" },
             ].map((s) => (
               <div key={s.label} className={`${s.bg} border rounded-2xl p-6 text-center`}>
                 <div className="text-3xl mb-2">{s.icon}</div>
@@ -64,9 +64,9 @@ export default function PublicHome() {
       <section className="max-w-5xl mx-auto px-6 pb-24">
         <div className="grid md:grid-cols-3 gap-6">
           {[
-            { to: "/lignes",    icon: "🗺️",  title: "Lignes",    desc: "Toutes les lignes de bus avec leurs arrêts et trajets.",    color: "emerald" },
-            { to: "/horaires",  icon: "🕐",  title: "Horaires",  desc: "Consultez les horaires par ligne et par jour de semaine.",    color: "sky" },
-            { to: "/incidents", icon: "⚠️",  title: "Incidents", desc: "Suivez les retards et incidents en cours sur le réseau.",     color: "orange" },
+            { to: "/lignes",    icon: "🗺️",  title: "Lines",    desc: "All bus lines with their stops and routes.",    color: "emerald" },
+            { to: "/horaires",  icon: "🕐",  title: "Schedules",  desc: "Check schedules by line and day of the week.",    color: "sky" },
+            { to: "/incidents", icon: "⚠️",  title: "Incidents", desc: "Track delays and ongoing incidents on the network.",     color: "orange" },
           ].map((card) => (
             <Link
               key={card.to}
@@ -77,7 +77,7 @@ export default function PublicHome() {
               <h3 className="text-xl font-black text-slate-800 mb-2">{card.title}</h3>
               <p className="text-slate-500 text-sm leading-relaxed">{card.desc}</p>
               <div className="mt-6 text-emerald-600 font-bold text-sm group-hover:translate-x-1 transition-transform">
-                Explorer →
+                Explore →
               </div>
             </Link>
           ))}
@@ -85,7 +85,7 @@ export default function PublicHome() {
       </section>
 
       <footer className="border-t border-slate-100 py-8 text-center text-slate-400 text-xs">
-        USTHB · Faculté d'Informatique · BDD 2ème Année 2025–2026
+        USTHB · Computer Science Department · BDD 2nd Year 2025–2026
       </footer>
     </div>
   );

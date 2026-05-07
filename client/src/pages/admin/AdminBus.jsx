@@ -4,9 +4,9 @@ import { api } from "../../utils/api";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 
 const ETAT_COLORS = {
-  OPERATIONNEL:   { bg: "bg-emerald-500/10", text: "text-emerald-400", border: "border-emerald-500/20", label: "Opérationnel" },
+  OPERATIONNEL:   { bg: "bg-emerald-500/10", text: "text-emerald-400", border: "border-emerald-500/20", label: "Operational" },
   EN_MAINTENANCE: { bg: "bg-amber-500/10",   text: "text-amber-400",   border: "border-amber-500/20",   label: "Maintenance" },
-  HORS_SERVICE:   { bg: "bg-red-500/10",     text: "text-red-400",     border: "border-red-500/20",     label: "Hors service" },
+  HORS_SERVICE:   { bg: "bg-red-500/10",     text: "text-red-400",     border: "border-red-500/20",     label: "Out of Service" },
 };
 
 const EMPTY = { immatriculation: "", marque: "", modele: "", capaciteMax: 50, anneeAcquisition: "", etat: "OPERATIONNEL" };
@@ -46,12 +46,12 @@ export default function AdminBus() {
       else                 await api.put(`/bus/${body.id}`, payload);
       setForm(null);
       fetchBuses();
-    } catch (e) { alert(e?.response?.data?.message || "Erreur"); }
+    } catch (e) { alert(e?.response?.data?.message || "Error"); }
     finally { setSaving(false); }
   };
 
   const del = async (id) => {
-    if (!confirm("Supprimer ce bus ?")) return;
+    if (!confirm("Delete this bus?")) return;
     await api.delete(`/bus/${id}`);
     fetchBuses();
   };
@@ -67,11 +67,11 @@ export default function AdminBus() {
       <main className="ml-60 flex-1 p-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-black">🚌 Flotte de Bus</h1>
-            <p className="text-white/35 text-sm mt-1">{pagination.total ?? "—"} véhicules</p>
+            <h1 className="text-2xl font-black">🚌 Fleet of Buses</h1>
+            <p className="text-white/35 text-sm mt-1">{pagination.total ?? "—"} vehicles </p>
           </div>
           <button onClick={openAdd} className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-amber-900/30">
-            + Nouveau bus
+            + New Bus
           </button>
         </div>
 
@@ -79,7 +79,7 @@ export default function AdminBus() {
           <input
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            placeholder="Rechercher par immatriculation, marque..."
+            placeholder="Search by license plate, brand..."
             className="flex-1 max-w-sm px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm placeholder:text-white/25 focus:border-amber-400/50 outline-none"
           />
           <select
@@ -87,10 +87,10 @@ export default function AdminBus() {
             onChange={(e) => { setEtatFilter(e.target.value); setPage(1); }}
             className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white/60 focus:border-amber-400/50 outline-none"
           >
-            <option value="">Tous les états</option>
-            <option value="OPERATIONNEL">Opérationnel</option>
-            <option value="EN_MAINTENANCE">En maintenance</option>
-            <option value="HORS_SERVICE">Hors service</option>
+            <option value="">All States</option>
+            <option value="OPERATIONNEL">Operational</option>
+            <option value="EN_MAINTENANCE">In Maintenance</option>
+            <option value="HORS_SERVICE">Out of Service</option>
           </select>
         </div>
 
@@ -98,14 +98,14 @@ export default function AdminBus() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/10">
-                {["Immatriculation", "Marque / Modèle", "Capacité", "Ligne actuelle", "État", "Actions"].map((h) => (
+                {["License Plate", "Brand / Model", "Capacity", "Current Line", "Status", "Actions"].map((h) => (
                   <th key={h} className="text-left px-5 py-4 text-xs font-bold tracking-widest text-white/25 uppercase">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={6} className="text-center py-12 text-white/25">Chargement...</td></tr>
+                <tr><td colSpan={6} className="text-center py-12 text-white/25">Loading...</td></tr>
               ) : buses.map((b) => {
                 const etat = ETAT_COLORS[b.etat];
                 const affectActuelle = b.affectations?.[0];
@@ -125,7 +125,7 @@ export default function AdminBus() {
                         <span className="px-2.5 py-1 bg-violet-500/10 text-violet-300 border border-violet-500/20 rounded-full text-xs font-semibold">
                           {affectActuelle.ligne?.code}
                         </span>
-                      ) : <span className="text-white/25 text-xs">Non affecté</span>}
+                      ) : <span className="text-white/25 text-xs">Not Assigned</span>}
                     </td>
                     <td className="px-5 py-3">
                       <span className={`px-2.5 py-1 ${etat.bg} ${etat.text} border ${etat.border} rounded-full text-xs font-semibold`}>
@@ -134,9 +134,9 @@ export default function AdminBus() {
                     </td>
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-2">
-                        <button onClick={() => openDetail(b)} className="px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-white/60 hover:text-white transition-all">Voir</button>
-                        <button onClick={() => openEdit(b)}   className="px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 rounded-lg text-xs text-amber-400 transition-all">Modifier</button>
-                        <button onClick={() => del(b.id)}     className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-lg text-xs text-red-400 transition-all">Suppr.</button>
+                        <button onClick={() => openDetail(b)} className="px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-white/60 hover:text-white transition-all">View</button>
+                        <button onClick={() => openEdit(b)}   className="px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 rounded-lg text-xs text-amber-400 transition-all">Edit</button>
+                        <button onClick={() => del(b.id)}     className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-lg text-xs text-red-400 transition-all">Delete</button>
                       </div>
                     </td>
                   </tr>
@@ -158,18 +158,18 @@ export default function AdminBus() {
         <AnimatePresence>
           {selected && (
             <Modal onClose={() => setSelected(null)} title={`${selected.immatriculation} — ${selected.marque}`}>
-              <Row label="Modèle"       val={selected.modele} />
-              <Row label="Capacité"     val={`${selected.capaciteMax} places`} />
-              <Row label="Année"        val={selected.anneeAcquisition} />
-              <Row label="État"         val={ETAT_COLORS[selected.etat]?.label} />
+              <Row label="Model"       val={selected.modele} />
+              <Row label="Capacity"     val={`${selected.capaciteMax} places`} />
+              <Row label="Year"        val={selected.anneeAcquisition} />
+              <Row label="Status"         val={ETAT_COLORS[selected.etat]?.label} />
 
               {selected.affectations?.length > 0 && (
                 <div className="mt-4">
-                  <p className="text-xs text-white/25 uppercase tracking-widest mb-2">Historique des affectations</p>
+                  <p className="text-xs text-white/25 uppercase tracking-widest mb-2">Assignment History</p>
                   {selected.affectations.map((a) => (
                     <div key={a.id} className="flex items-center justify-between py-2 border-b border-white/5 text-xs text-white/50">
                       <span>{a.ligne?.code} — {a.ligne?.nom}</span>
-                      <span>{a.dateDebut?.split("T")[0]} → {a.dateFin ? a.dateFin.split("T")[0] : "En cours"}</span>
+                      <span>{a.dateDebut?.split("T")[0]} → {a.dateFin ? a.dateFin.split("T")[0] : "In Progress"}</span>
                     </div>
                   ))}
                 </div>
@@ -181,14 +181,14 @@ export default function AdminBus() {
         {/* Form Modal */}
         <AnimatePresence>
           {form && (
-            <Modal onClose={() => setForm(null)} title={form._mode === "add" ? "Nouveau bus" : "Modifier le bus"}>
+            <Modal onClose={() => setForm(null)} title={form._mode === "add" ? "New Bus" : "Edit Bus"}>
               <div className="grid grid-cols-2 gap-4">
                 {[
-                  ["Immatriculation", "immatriculation", "text"],
-                  ["Marque",          "marque",          "text"],
-                  ["Modèle",          "modele",          "text"],
-                  ["Capacité max",    "capaciteMax",     "number"],
-                  ["Année acquisition","anneeAcquisition","number"],
+                  ["License Plate", "immatriculation", "text"],
+                  ["Brand",          "marque",          "text"],
+                  ["Model",          "modele",          "text"],
+                  ["Max Capacity",    "capaciteMax",     "number"],
+                  ["Acquisition Year","anneeAcquisition","number"],
                 ].map(([label, key, type]) => (
                   <div key={key}>
                     <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">{label}</label>
@@ -197,17 +197,17 @@ export default function AdminBus() {
                   </div>
                 ))}
                 <div>
-                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">État</label>
+                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Status</label>
                   <select value={form.etat} onChange={(e) => setForm(f => ({ ...f, etat: e.target.value }))}
                     className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:border-amber-400/50 outline-none">
-                    <option value="OPERATIONNEL">Opérationnel</option>
-                    <option value="EN_MAINTENANCE">En maintenance</option>
-                    <option value="HORS_SERVICE">Hors service</option>
+                    <option value="OPERATIONNEL">Operational</option>
+                    <option value="EN_MAINTENANCE">Maintenance</option>
+                    <option value="HORS_SERVICE">Out of Service</option>
                   </select>
                 </div>
               </div>
               <button onClick={save} disabled={saving} className="w-full mt-6 py-3.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-40 text-white font-bold rounded-xl transition-all">
-                {saving ? "Enregistrement..." : "Enregistrer"}
+                {saving ? "Saving..." : "Save"}
               </button>
             </Modal>
           )}

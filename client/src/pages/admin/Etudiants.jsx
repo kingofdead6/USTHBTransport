@@ -14,6 +14,7 @@ export default function AdminEtudiants() {
   const [selected, setSelected]   = useState(null);   // detail modal
   const [form, setForm]           = useState(null);   // add/edit modal
   const [saving, setSaving]       = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const fetch = useCallback(async () => {
     setLoading(true);
@@ -38,12 +39,12 @@ export default function AdminEtudiants() {
       else                 await api.put(`/etudiants/${body.id}`, body);
       setForm(null);
       fetch();
-    } catch (e) { alert(e?.response?.data?.message || "Erreur"); }
+    } catch (e) { alert(e?.response?.data?.message || "Error"); }
     finally { setSaving(false); }
   };
 
   const del = async (id) => {
-    if (!confirm("Supprimer cet étudiant ?")) return;
+    if (!confirm("Delete this student?")) return;
     await api.delete(`/etudiants/${id}`);
     fetch();
   };
@@ -55,16 +56,34 @@ export default function AdminEtudiants() {
 
   return (
     <div className="min-h-screen bg-[#0a0a14] text-white flex">
-      <AdminSidebar />
-      <main className="ml-60 flex-1 p-8">
+      <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      
+      {/* Mobile Header */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-[#0f0f1a] border-b border-white/5 px-4 py-3 flex items-center justify-between">
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="p-2 rounded-lg hover:bg-white/5 transition-colors"
+        >
+          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+        <div className="flex items-center gap-2">
+          <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-sm shadow-lg shadow-violet-900/50">🎓</span>
+          <span className="font-black text-sm">Students</span>
+        </div>
+        <div></div> {/* Spacer */}
+      </div>
+
+      <main className="ml-0 md:ml-60 flex-1 p-4 md:p-8 pt-16 md:pt-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-black">🎓 Étudiants</h1>
-            <p className="text-white/35 text-sm mt-1">{pagination.total ?? "—"} inscrits</p>
+            <h1 className="text-2xl font-black">🎓 Students</h1>
+            <p className="text-white/35 text-sm mt-1">{pagination.total ?? "—"} registered</p>
           </div>
           <button onClick={openAdd} className="px-5 py-2.5 bg-violet-500 hover:bg-violet-600 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-violet-900/30">
-            + Nouvel étudiant
+            + New Student
           </button>
         </div>
 
@@ -110,7 +129,7 @@ export default function AdminEtudiants() {
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-2">
                       <button onClick={() => openDetail(e)} className="px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-white/60 hover:text-white transition-all">Voir</button>
-                      <button onClick={() => openEdit(e)}   className="px-3 py-1.5 bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/20 rounded-lg text-xs text-violet-400 transition-all">Modifier</button>
+                        <button onClick={() => openEdit(e)}   className="px-3 py-1.5 bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/20 rounded-lg text-xs text-violet-400 transition-all">Edit</button>
                       <button onClick={() => del(e.id)}     className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-lg text-xs text-red-400 transition-all">Suppr.</button>
                     </div>
                   </td>
@@ -170,18 +189,18 @@ export default function AdminEtudiants() {
         {/* Add/Edit Modal */}
         <AnimatePresence>
           {form && (
-            <Modal onClose={() => setForm(null)} title={form._mode === "add" ? "Nouvel étudiant" : "Modifier l'étudiant"}>
+            <Modal onClose={() => setForm(null)} title={form._mode === "add" ? "New Student" : "Edit Student"}>
               <div className="grid grid-cols-2 gap-4">
                 {[
-                  ["Matricule",   "matricule",   "text"],
-                  ["Nom",         "nom",          "text"],
-                  ["Prénom",      "prenom",       "text"],
+                  ["Registration",   "matricule",   "text"],
+                  ["Last Name",         "nom",          "text"],
+                  ["First Name",      "prenom",       "text"],
                   ["Email",       "email",        "email"],
-                  ["Téléphone",   "telephone",    "text"],
-                  ["Naissance",   "dateNaissance","date"],
-                  ["Faculté",     "faculte",      "text"],
-                  ["Département", "departement",  "text"],
-                  ["Année étude", "anneeEtude",   "number"],
+                  ["Phone",   "telephone",    "text"],
+                  ["Date of Birth",   "dateNaissance","date"],
+                  ["Faculty",     "faculte",      "text"],
+                  ["Department", "departement",  "text"],
+                  ["Year of Study", "anneeEtude",   "number"],
                 ].map(([label, key, type]) => (
                   <div key={key} className={key === "adresse" ? "col-span-2" : ""}>
                     <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">{label}</label>
@@ -194,7 +213,7 @@ export default function AdminEtudiants() {
                   </div>
                 ))}
                 <div className="col-span-2">
-                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Adresse</label>
+                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Address</label>
                   <textarea
                     value={form.adresse ?? ""}
                     onChange={(e) => setForm((f) => ({ ...f, adresse: e.target.value }))}
@@ -204,7 +223,7 @@ export default function AdminEtudiants() {
                 </div>
               </div>
               <button onClick={save} disabled={saving} className="w-full mt-6 py-3.5 bg-violet-500 hover:bg-violet-600 disabled:opacity-40 text-white font-bold rounded-xl transition-all">
-                {saving ? "Enregistrement..." : "Enregistrer"}
+                {saving ? "Saving..." : "Save"}
               </button>
             </Modal>
           )}

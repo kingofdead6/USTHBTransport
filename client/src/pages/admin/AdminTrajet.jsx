@@ -72,7 +72,7 @@ export default function AdminTrajets() {
       else                 await api.put(`/trajets/${body.id}`, payload);
       setForm(null);
       fetchTrajets();
-    } catch (e) { alert(e?.response?.data?.message || "Erreur"); }
+    } catch (e) { alert(e?.response?.data?.message || "Error"); }
     finally { setSaving(false); }
   };
 
@@ -87,22 +87,22 @@ export default function AdminTrajets() {
       <main className="ml-60 flex-1 p-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-black">🛣️ Trajets</h1>
-            <p className="text-white/35 text-sm mt-1">{pagination.total ?? "—"} trajets enregistrés</p>
+            <h1 className="text-2xl font-black">🛮️ Trips</h1>
+            <p className="text-white/35 text-sm mt-1">{pagination.total ?? "—"} trips recorded</p>
           </div>
           <button onClick={openAdd} className="px-5 py-2.5 bg-lime-500 hover:bg-lime-600 text-black font-bold rounded-xl text-sm transition-all shadow-lg shadow-lime-900/30">
-            + Nouveau trajet
+            + New Trip
           </button>
         </div>
 
         <div className="flex gap-3 mb-6">
           <select value={statutFilter} onChange={(e) => { setStatutFilter(e.target.value); setPage(1); }}
             className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white/60 focus:border-lime-400/50 outline-none">
-            <option value="">Tous les statuts</option>
-            <option value="PLANIFIE">Planifié</option>
-            <option value="EN_COURS">En cours</option>
-            <option value="TERMINE">Terminé</option>
-            <option value="ANNULE">Annulé</option>
+            <option value="">All Statuses</option>
+            <option value="PLANIFIE">Planified</option>
+            <option value="EN_COURS">In Progress</option>
+            <option value="TERMINE">Completed</option>
+            <option value="ANNULE">Cancelled</option>
           </select>
         </div>
 
@@ -117,7 +117,7 @@ export default function AdminTrajets() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={7} className="text-center py-12 text-white/25">Chargement...</td></tr>
+                <tr><td colSpan={7} className="text-center py-12 text-white/25">Loading...</td></tr>
               ) : trajets.map((t) => {
                 const statut = STATUT_COLORS[t.statut];
                 return (
@@ -143,7 +143,7 @@ export default function AdminTrajets() {
                       </span>
                     </td>
                     <td className="px-5 py-3">
-                      <button onClick={() => openDetail(t)} className="px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-white/60 hover:text-white transition-all">Voir</button>
+                      <button onClick={() => openDetail(t)} className="px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-white/60 hover:text-white transition-all">View</button>
                     </td>
                   </tr>
                 );
@@ -167,13 +167,13 @@ export default function AdminTrajets() {
               <Row label="Date"       val={selected.dateTrajet?.split("T")[0]} />
               <Row label="Ligne"      val={`${selected.ligne?.code} — ${selected.ligne?.nom}`} />
               <Row label="Bus"        val={`${selected.bus?.immatriculation} (${selected.bus?.marque})`} />
-              <Row label="Retard"     val={selected.retardMinutes > 0 ? `+${selected.retardMinutes} min` : "Aucun"} />
+              <Row label="Retard"     val={selected.retardMinutes > 0 ? `+${selected.retardMinutes} min` : "None"} />
               <Row label="Passagers"  val={selected.nbPassagers} />
               <Row label="Statut"     val={STATUT_COLORS[selected.statut]?.label} />
 
               {selected.arretsTrajet?.length > 0 && (
                 <div className="mt-4">
-                  <p className="text-xs text-white/25 uppercase tracking-widest mb-2">Arrêts</p>
+                  <p className="text-xs text-white/25 uppercase tracking-widest mb-2">Stops</p>
                   {selected.arretsTrajet.map((a) => (
                     <div key={a.id} className="flex items-center gap-3 py-2 border-b border-white/5 text-xs text-white/50">
                       <span className="w-5 h-5 rounded-full bg-white/5 text-white/30 flex items-center justify-center text-[10px]">{a.ordreArret}</span>
@@ -197,24 +197,24 @@ export default function AdminTrajets() {
                   <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Bus</label>
                   <select value={form.busId} onChange={(e) => setForm(f => ({ ...f, busId: e.target.value }))}
                     className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:border-lime-400/50 outline-none">
-                    <option value="">Sélectionner...</option>
+                    <option value="">Select...</option>
                     {buses.map((b) => <option key={b.id} value={b.id}>{b.immatriculation} ({b.marque})</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Ligne</label>
+                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Line</label>
                   <select value={form.ligneId} onChange={(e) => onLigneChange(e.target.value)}
                     className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:border-lime-400/50 outline-none">
-                    <option value="">Sélectionner...</option>
+                    <option value="">Select...</option>
                     {lignes.map((l) => <option key={l.id} value={l.id}>{l.code} — {l.nom}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Horaire</label>
+                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Schedule</label>
                   <select value={form.horaireId} onChange={(e) => setForm(f => ({ ...f, horaireId: e.target.value }))}
                     className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:border-lime-400/50 outline-none"
                     disabled={!form.ligneId}>
-                    <option value="">Sélectionner...</option>
+                    <option value="">Select...</option>
                     {horaires.map((h) => <option key={h.id} value={h.id}>{h.jourSemaine} {h.heureDepart?.slice(11, 16)} ({h.sens})</option>)}
                   </select>
                 </div>
@@ -224,28 +224,28 @@ export default function AdminTrajets() {
                     className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:border-lime-400/50 outline-none" />
                 </div>
                 <div>
-                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Retard (min)</label>
+                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Latency (min)</label>
                   <input type="number" value={form.retardMinutes ?? 0} onChange={(e) => setForm(f => ({ ...f, retardMinutes: e.target.value }))}
                     className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:border-lime-400/50 outline-none" />
                 </div>
                 <div>
-                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Passagers</label>
+                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Passengers</label>
                   <input type="number" value={form.nbPassagers ?? ""} onChange={(e) => setForm(f => ({ ...f, nbPassagers: e.target.value }))}
                     className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:border-lime-400/50 outline-none" />
                 </div>
                 <div>
-                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Statut</label>
+                  <label className="text-xs text-white/30 uppercase tracking-widest mb-1.5 block">Status</label>
                   <select value={form.statut} onChange={(e) => setForm(f => ({ ...f, statut: e.target.value }))}
                     className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:border-lime-400/50 outline-none">
-                    <option value="PLANIFIE">Planifié</option>
-                    <option value="EN_COURS">En cours</option>
-                    <option value="TERMINE">Terminé</option>
-                    <option value="ANNULE">Annulé</option>
+                    <option value="PLANIFIE">Planned</option>
+                    <option value="EN_COURS">In Progress</option>
+                    <option value="TERMINE">Completed</option>
+                    <option value="ANNULE">Cancelled</option>
                   </select>
                 </div>
               </div>
               <button onClick={save} disabled={saving} className="w-full mt-6 py-3.5 bg-lime-500 hover:bg-lime-600 disabled:opacity-40 text-black font-bold rounded-xl transition-all">
-                {saving ? "Enregistrement..." : "Enregistrer"}
+                {saving ? "Saving..." : "Save"}
               </button>
             </Modal>
           )}

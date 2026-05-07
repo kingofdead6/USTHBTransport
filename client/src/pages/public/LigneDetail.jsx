@@ -16,7 +16,7 @@ export default function PublicLigneDetail() {
   if (!ligne) return (
     <div className="min-h-screen bg-slate-50">
       <PublicNav />
-      <div className="pt-32 text-center text-slate-400">Chargement...</div>
+      <div className="pt-32 text-center text-slate-400">Loading...</div>
     </div>
   );
 
@@ -33,7 +33,7 @@ export default function PublicLigneDetail() {
       <div className="max-w-4xl mx-auto pt-28 px-6 pb-16">
         {/* Header */}
         <Link to="/lignes" className="text-sm text-slate-400 hover:text-emerald-600 mb-6 inline-flex items-center gap-1">
-          ← Retour aux lignes
+          ← Back to Lines
         </Link>
 
         <div className="bg-white border border-slate-100 rounded-3xl p-8 mb-6 shadow-sm">
@@ -43,7 +43,7 @@ export default function PublicLigneDetail() {
             </span>
             <div>
               <h1 className="text-2xl font-black text-slate-900">{ligne.nom}</h1>
-              <p className="text-slate-500 text-sm">{ligne._count?.abonnements} abonnés · {ligne._count?.trajets} trajets effectués</p>
+              <p className="text-slate-500 text-sm">{ligne._count?.abonnements} subscribers · {ligne._count?.trajets} trips completed</p>
             </div>
           </div>
 
@@ -64,7 +64,7 @@ export default function PublicLigneDetail() {
 
         {/* Stations */}
         <div className="bg-white border border-slate-100 rounded-3xl p-8 mb-6 shadow-sm">
-          <h2 className="font-black text-slate-800 mb-5">📍 Arrêts ({ligne.ligneStations.length})</h2>
+          <h2 className="font-black text-slate-800 mb-5">📍 Stops ({ligne.ligneStations.length})</h2>
           <div className="space-y-2">
             {ligne.ligneStations.map((ls, i) => (
               <div key={ls.id} className="flex items-center gap-4">
